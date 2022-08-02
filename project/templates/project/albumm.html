@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicSea</title>
+    <link rel="stylesheet" href="{% static 'project/albumm.css' %}">
+    <script src="https://kit.fontawesome.com/c8e4d183c2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <input type="checkbox" name="" id="bar">
+    <div class="slidebar">
+        <div class="logo">
+            <i class="logo-icon fab fa-soundcloud" aria-hidden="true"></i>
+            <span class="logo-text">MusicSea</span>
+        </div>
+        <div class="menu">
+            <p>Menu</p>
+            <a href="{% url 'home' %}">
+                <i class="fas fa-home" aria-hidden="true"></i>
+                Home
+            </a>
+        </div>
+        <div class="library">
+            <p>Library</p>
+            <a href="{% url 'song-main' %}">
+                <i class="fas fa-compact-disc" aria-hidden="true"></i>
+                Songs
+            </a>
+            <a href="{% url 'album-main' %}">
+                <i class="fas fa-compact-disc" aria-hidden="true"></i>
+                Albums
+            </a>
+            <a href="{% url 'singer-main' %}">
+                <i class="fas fa-music" aria-hidden="true"></i>
+                Singers
+            </a>
+        </div>
+        <div class="my-playlist">
+            <p>Top Tags</p>
+            <a href="{% url 'tag-detail' pk=2 %}">
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                Musician
+            </a>
+            <a href="{% url 'tag-detail' pk=1 %}">
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                Top
+            </a>
+            <a href="{% url 'tag-detail' pk=6 %}">
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                Rap
+            </a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="search">
+            <form>
+                <input name="search" type="text" placeholder="find your interest album..." class="search-input">
+                <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="bottom-content">
+            <div class="playlist">
+                <div class="left-side">
+
+                    <div class="left-side-bottom">
+
+                        <div class="right">
+                            <p>All Albums</p>
+                            <div class="songs">
+                                {% for album in page_obj %}
+                                <div class="song">
+                                    <img src="{{ album.cover.url }}" alt="" class="song-img">
+                                    <div class="song-title">
+                                        <p>Album Title</p>
+                                        <a href="{% url 'album-extra' pk=album.pk %}">{{ album.title }}</a>
+                                    </div>
+                                    <div class="song-singer">
+                                        <p>Album Singer</p>
+                                        <a href="{% url 'singer-extra' album.singer.pk %}">{{ album.singer.first_name }} {{ album.singer.last_name }}</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="adp-action-right">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}" class="fas fa-backward"></a>
+                                {% endif %}
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}" class="fas fa-forward"></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="right">
+                            <p>Top Albums</p>
+                            <div class="songs">
+                                {% for top in page_objj %}
+                                <div class="song">
+                                    <img src="{{ top.cover.url }}" alt="" class="song-img">
+                                    <div class="song-title">
+                                        <p>Album Title</p>
+                                        <a href="{% url 'album-extra' pk=top.pk %}">{{ top.title }}</a>
+                                    </div>
+                                    <div class="song-singer">
+                                        <p>Album Singer</p>
+                                        <a href="{% url 'singer-extra' pk=top.singer.pk %}">{{ top.singer.first_name }} {{ top.singer.last_name }}</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="adp-action-right">
+                                {% if page_objj.has_previous %}
+                                    <a href="?page={{ page_objj.previous_page_number }}" class="fas fa-backward"></a>
+                                {% endif %}
+                                {% if page_objj.has_next %}
+                                    <a href="?page={{ page_objj.next_page_number }}" class="fas fa-forward"></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="index.js"></script>
+</body>
+</html>

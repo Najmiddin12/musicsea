@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicSea</title>
+    <link rel="stylesheet" href="{% static 'project/home.css' %}">
+    <script src="https://kit.fontawesome.com/c8e4d183c2.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <input type="checkbox" name="" id="bar">
+        <div class="slidebar">
+            <div class="logo">
+                <i class="logo-icon fab fa-soundcloud"></i>
+                <span class="logo-text">MusicSea</span>
+            </div>
+            <div class="menu">
+                <p>Menu</p>
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                    Home
+                </a>
+            </div>
+            <div class="library">
+                <p>Library</p>
+                <a href="{% url 'song-main' %}">
+                    <i class="fas fa-compact-disc" aria-hidden="true"></i>
+                    Songs
+                </a>
+                <a href="{% url 'album-main' %}">
+                    <i class="fas fa-compact-disc" aria-hidden="true"></i>
+                    Albums
+                </a>
+                <a href="{% url 'singer-main' %}">
+                    <i class="fas fa-music" aria-hidden="true"></i>
+                    Singers
+                </a>
+            </div>
+            <div class="my-playlist">
+                <p>Top Tags</p>
+                <a href="{% url 'tag-detail' pk=2 %}">
+                    <i class="fas fa-bookmark" aria-hidden="true"></i>
+                    Musician
+                </a>
+                <a href="{% url 'tag-detail' pk=1 %}">
+                    <i class="fas fa-bookmark" aria-hidden="true"></i>
+                    Top
+                </a>
+                <a href="{% url 'tag-detail' pk=6 %}">
+                    <i class="fas fa-bookmark" aria-hidden="true"></i>
+                    Rap
+                </a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="top-content">
+                <div class="trending">
+                    <div class="left">
+                        <p class="type">Trending</p>
+                        <p class="title">Eleven</p>
+                        <p class="artist">Khalid ft. Summer</p>
+                        <p class="view">7.3 Million listens</p>
+                        <a href="#" class="btn-play">Play Now</a>
+                    </div>
+                    <div class="right">
+                        <img src="{% static 'project/avatar.jpg' %}" alt="">
+                        Rahman Nayan
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-content">
+                <div class="playlist">
+                    <div class="left-side">
+                        <div class="left-side-top">
+                            <div class="top-albums-title">
+                                <span>Top Albums</span>
+                                <span>See all</span>
+                            </div>
+                            <div class="top-albums">
+                                {% for album in albums|slice:":5" %}
+                                <a href="{% url 'album-extra' pk=album.pk %}" style="text-decoration: none" class="card-albums">
+                                    <img src="{{ album.cover.url }}" alt="">
+                                    <p>{{ album.title }}</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="left-side-bottom">
+                            <div class="left">
+                                <div class="genres-table-title">
+                                    <span>Genres</span>
+                                    <span>See all</span>
+                                </div>
+                                <div class="genres-table">
+                                    {% for tag in tags %}
+                                        <a href="{% url 'tag-detail' pk=tag.pk %}" class="grid-item">{{ tag.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="right">
+                                <p>Top Songs</p>
+                                <div class="songs">
+                                    {% for song in songs %}
+                                    <div class="song">
+                                        <img src="{{ song.image.url }}" alt="" class="song-img">
+                                        <div class="song-title">
+                                            <span href="{% url 'song-extra' pk=song.pk %}">{{ song.title }}</span>
+                                            <span href="{% url 'singer-extra' pk=song.album.singer.pk %}">{{ song.album.singer.first_name }} {{ song.album.singer.last_name }}</span>
+                                        </div>
+                                        <a id="btn{{ song.id }}" src="{{ song.audio.url }}" class="btn-song-play" onclick="toggle({{ song.id }})">
+                                            <i class="far fa-play-circle"></i>
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-side">
+                        <p class="adp-card-title">Now Playing</p>
+                        <div class="audio-player">
+                            <img src="./images/audio1.jpg" alt="" class="adp-img" id="image">
+                            <div class="adp-title">
+                                <p id="title">Love Like This</p>
+                                <p id="album">In a Perfect World</p>
+                                <p id="singer">Kodaline</p>
+                            </div>
+                        </div>
+                        <div class="adp-action">
+                            <a href="#" id="previous" onclick="previousSong()"><i class="fas fa-backward"></i></a>
+                            <a href="#" id="play" onclick="justPlay()"><i class="fas fa-play"></i></a>
+                            <a href="#" id="next" onclick="nextSong()"><i class="fas fa-forward"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script type="text/javascript">
+        const previous = document.querySelector('#previous');
+        const play = document.querySelector('#play');
+        const next = document.querySelector('#next');
+
+        const title = document.querySelector('#title');
+        const album = document.querySelector('#album');
+        const singer = document.querySelector('#singer');
+        const image = document.querySelector('#image');
+
+        const track = document.createElement('audio');
+
+        let index = 0;
+        let playingSong = false;
+
+        let songs = [
+            {% for song in songs %}
+            {
+                name: '{{ song.title }}',
+                path: '{{ song.audio.url }}',
+                image: '{{ song.image.url }}',
+                album: '{{ song.album.title }}',
+                singer: '{{ song.album.singer.first_name }} {{ song.album.singer.last_name }}',
+                id: {{ song.id }},
+            },
+            {% endfor %}
+        ];
+        let btn;
+
+        function loadTrack(index) {
+            btn = document.querySelector(`#btn${songs[index].id}`)
+            track.src = songs[index].path;
+            title.innerHTML = songs[index].name;
+            image.src = songs[index].image;
+            album.innerHTML = songs[index].album;
+            singer.innerHTML = songs[index].singer;
+            track.load();
+        }
+
+        loadTrack(index);
+
+        function playSong() {
+            track.play();
+            playingSong = true;
+            play.innerHTML = '<i class="fas fa-pause"></i>';
+            btn.innerHTML = '<i class="far fa-pause-circle"></i>';
+        }
+
+        function pauseSong() {
+            track.pause();
+            playingSong = false;
+            play.innerHTML = '<i class="fas fa-play"></i>';
+            btn.innerHTML = '<i class="far fa-play-circle"></i>';
+        }
+
+        function nextSong() {
+            if (index < songs.length - 1) {
+                pauseSong();
+                index += 1;
+                loadTrack(index);
+                playSong();
+            } else {
+                pauseSong()
+                index = songs.length - songs.filter(e => e).length;
+                loadTrack(index);
+                playSong();
+
+                }
+            }
+
+        function previousSong() {
+            if (index > 0) {
+                pauseSong();
+                index -= 1;
+                loadTrack(index);
+                playSong();
+            } else {
+                pauseSong();
+                index = songs.length;
+                loadTrack(index);
+                playSong();
+                }
+            }
+
+        function justPlay() {
+            if (playingSong == false) {
+                playSong();
+            } else {
+                pauseSong();
+                }
+            }
+
+            function toggle(ind) {
+                songs.find((e,i)=>{
+                    index = i;
+                    return e.id==ind;
+                });
+                if (track.src == songs[index].path) {
+                    justPlay();
+                } else {
+                    loadTrack(index);
+                    justPlay();
+                }
+            }
+    </script>
+
+</body>
+
+</html>
